@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const documents = [
-  { id: 1, title: "Paris Agreement Withdrawal", category: "Environment", type: "Executive Order" },
-  { id: 2, title: "Health Care for All Patients", category: "Healthcare", type: "Bill" },
-  { id: 3, title: "AI Innovation Act", category: "Technology", type: "Bill" },
-  { id: 4, title: "Election Integrity", category: "Civil Rights", type: "Executive Order" },
-  { id: 5, title: "Women's Health Research", category: "Healthcare", type: "Executive Order" }
+  { id: 1, title: "Paris Agreement Withdrawal", category: "Environment", type: "Executive Order", color: "#2563eb" },
+  { id: 2, title: "Health Care for All Patients", category: "Healthcare", type: "Bill",  color: "#3b82f6"},
+  { id: 3, title: "AI Innovation Act", category: "Technology", type: "Bill", color: "#1d4ed8"},
+  { id: 4, title: "Election Integrity", category: "Civil Rights", type: "Executive Order", color: "#1e3a8a" },
+  { id: 5, title: "Women's Health Research", category: "Healthcare", type: "Executive Order", color: "#60a5fa"}
 ];
 
 export default function Home() {
@@ -45,7 +45,14 @@ export default function Home() {
               key={doc.id}
               onClick={() => handleDocumentClick(doc)}
               className="group p-6 bg-white border-2 border-gray-200 rounded-2xl text-left hover:border-indigo-500 hover:shadow-xl transition-all hover:-translate-y-1"
+              
             >
+              <div 
+                style={{ backgroundColor: doc.color }} 
+                className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-xl font-black mb-6 shadow-lg shadow-blue-100"
+              >
+                {doc.category.charAt(0)}
+              </div>
               <h3 className="font-bold text-gray-900 mb-3 group-hover:text-indigo-600 transition-colors">{doc.title}</h3>
               <div className="flex flex-wrap gap-2">
                 <span className="px-3 py-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg text-xs font-bold shadow">

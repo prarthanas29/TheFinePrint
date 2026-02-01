@@ -21,9 +21,9 @@ function Result() {
   });
 
   const tabs = [
-    { id: 'translation', label: 'What Does This Mean?', icon: '💡', color: 'blue' },
-    { id: 'predictions', label: 'What Happened Before?', icon: '🕐', color: 'purple' },
-    { id: 'actions', label: 'What Can I Do?', icon: '⚡', color: 'green' }
+    { id: 'translation', label: 'What Does This Mean?'},
+    { id: 'predictions', label: 'What Happened Before?' },
+    { id: 'actions', label: 'What Can I Do?'}
   ];
 
   const fetchAnalysis = async (tab) => {
@@ -65,9 +65,6 @@ function Result() {
       <header className="bg-white border-b shadow-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-2xl">📜</span>
-            </div>
             <div>
               <h1 className="text-2xl font-black text-gray-900">The Fine Print</h1>
               <p className="text-xs text-gray-500 font-medium">Analysis Results</p>
@@ -105,22 +102,21 @@ function Result() {
 
           {/* Tabs */}
           <div className="px-8 pt-8 bg-white">
-            <div className="flex gap-3 border-b-2 border-gray-100">
+            <div className="flex gap-0 border-b border-slate-100">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => handleTabClick(tab.id)}
-                  className={`pb-4 px-6 font-bold text-sm transition-all rounded-t-xl relative ${
+                  className={`pb-5 px-10 font-black text-[10px] tracking-[0.2em] uppercase transition-all relative ${
                     activeTab === tab.id
-                      ? 'text-indigo-600 bg-indigo-50'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      ? 'text-blue-700 bg-blue-50/30' 
+                      : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
                   }`}
                 >
                   {activeTab === tab.id && (
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-t"></div>
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 shadow-[0_-4px_10px_rgba(37,99,235,0.3)]"></div>
                   )}
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">{tab.icon}</span>
+                  <div className="flex items-center justify-center">
                     <span>{tab.label}</span>
                   </div>
                 </button>
@@ -156,19 +152,17 @@ function Result() {
                   <ReactMarkdown
                     components={{
                       h2: ({node, ...props}) => (
-                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 -mx-6 px-6 py-4 rounded-xl border-l-4 border-indigo-500 mb-6 mt-8">
-                          <h2 className="!mt-0 !mb-0 !border-0 flex items-center gap-3" {...props} />
-                        </div>
-                      ),
-                      ul: ({node, ...props}) => (
-                        <ul className="space-y-3 my-6" {...props} />
+                        <h2 className="text-2xl font-black text-blue-900 mb-6 mt-12 flex items-center gap-4 border-b border-blue-100 pb-4" {...props} />
                       ),
                       li: ({node, ...props}) => (
-                        <li className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-colors" {...props}>
-                          <span className="text-indigo-600 mt-1">•</span>
-                          <span className="flex-1">{props.children}</span>
+                        <li className="flex items-start gap-5 p-6 bg-white border border-blue-50 rounded-2xl shadow-sm hover:border-blue-200 transition-all mb-4 list-none">
+                          <div className="mt-1 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-xs shadow-md shadow-blue-100">
+                            {activeTab === 'actions' ? '⚡' : '✓'}
+                          </div>
+                          <div className="text-lg text-slate-700 leading-snug font-medium">{props.children}</div>
                         </li>
                       ),
+                      ul: ({node, ...props}) => <ul className="pl-0" {...props} />,
                       p: ({node, ...props}) => (
                         <p className="text-gray-700 leading-relaxed" {...props} />
                       ),
@@ -187,12 +181,7 @@ function Result() {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500 font-medium">
-            Powered by Gemini AI • Built for HackViolet 2026
-          </p>
-        </div>
+        
       </div>
     </div>
   );
