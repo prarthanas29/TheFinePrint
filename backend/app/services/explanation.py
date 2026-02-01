@@ -30,7 +30,7 @@ def generate_explanation(user_input: UserInput):
     relevant_docs = filter_documents(docs, user_input.category)
     prompt = build_prompt(user_input.category, relevant_docs)
     
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-3-flash-preview')
     response = model.generate_content(prompt)
     
     return response.text
