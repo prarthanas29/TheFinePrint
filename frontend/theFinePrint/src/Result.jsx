@@ -8,83 +8,190 @@ function Result() {
   const category = location.state?.category;
   const document = location.state?.document;
   
-  const [summary, setSummary] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('translation');
+  const [analyses, setAnalyses] = useState({
+    translation: '',
+    predictions: '',
+    actions: ''
+  });
+  const [loading, setLoading] = useState({
+    translation: false,
+    predictions: false,
+    actions: false
+  });
+
+  const tabs = [
+    { id: 'translation', label: 'What Does This Mean?', icon: '💡', color: 'blue' },
+    { id: 'predictions', label: 'What Happened Before?', icon: '🕐', color: 'purple' },
+    { id: 'actions', label: 'What Can I Do?', icon: '⚡', color: 'green' }
+  ];
+
+  const fetchAnalysis = async (tab) => {
+    if (analyses[tab]) return;
+    
+    setLoading(prev => ({ ...prev, [tab]: true }));
+    
+    try {
+      const res = await fetch('http://localhost:8000/explanation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category, tab })
+      });
+      
+      const data = await res.json();
+      setAnalyses(prev => ({ ...prev, [tab]: data.explanation }));
+      
+    } catch (error) {
+      console.error('Error:', error);
+    }
+    
+    setLoading(prev => ({ ...prev, [tab]: false }));
+  };
 
   useEffect(() => {
     if (category) {
-      setLoading(true);
-      // Fetch summary from backend
-      fetch('http://localhost:8000/explanation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category })
-      })
-      .then(res => res.json())
-      .then(data => {
-        setSummary(data.explanation);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        setLoading(false);
-      });
+      fetchAnalysis('translation');
     }
   }, [category]);
 
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    fetchAnalysis(tab);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">The Fine Print</h1>
-            <p className="text-sm text-gray-500">Analysis Results</p>
+      <header className="bg-white border-b shadow-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-2xl">📜</span>
+            </div>
+            <div>
+              <h1 className="text-2xl font-black text-gray-900">The Fine Print</h1>
+              <p className="text-xs text-gray-500 font-medium">Analysis Results</p>
+            </div>
           </div>
           <button 
             onClick={() => navigate('/')}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium"
+            className="px-5 py-2.5 bg-white border-2 border-gray-200 hover:border-indigo-300 rounded-xl font-bold text-sm transition-all hover:shadow-md"
           >
-            ← Back to Documents
+            ← Back
           </button>
         </div>
       </header>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+      {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-6 py-10">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+          
           {/* Document Header */}
           {document && (
-            <div className="mb-6 pb-6 border-b border-gray-200">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">
+            <div className="p-10 pb-8 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 border-b-2 border-indigo-100">
+              <h2 className="text-4xl font-black text-gray-900 mb-5 leading-tight">
                 {document.title}
               </h2>
-              <div className="flex gap-3">
-                <span className="px-4 py-1 bg-indigo-600 text-white rounded-lg text-sm font-bold">
+              <div className="flex flex-wrap gap-3">
+                <span className="px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-bold shadow-lg">
                   {document.type}
                 </span>
-                <span className="px-4 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-bold">
+                <span className="px-5 py-2 bg-white text-gray-700 rounded-xl text-sm font-bold border-2 border-gray-300 shadow-sm">
                   {document.category}
                 </span>
               </div>
             </div>
           )}
 
-          {/* AI Explanation */}
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">AI Analysis</h3>
-            
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                <p className="mt-2 text-gray-600">Analyzing...</p>
+          {/* Tabs */}
+          <div className="px-8 pt-8 bg-white">
+            <div className="flex gap-3 border-b-2 border-gray-100">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabClick(tab.id)}
+                  className={`pb-4 px-6 font-bold text-sm transition-all rounded-t-xl relative ${
+                    activeTab === tab.id
+                      ? 'text-indigo-600 bg-indigo-50'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {activeTab === tab.id && (
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-t"></div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{tab.icon}</span>
+                    <span>{tab.label}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Content Area */}
+          <div className="p-10 min-h-[500px]">
+            {loading[activeTab] ? (
+              <div className="flex flex-col items-center justify-center py-24">
+                <div className="relative mb-6">
+                  <div className="animate-spin rounded-full h-20 w-20 border-4 border-gray-200 border-t-indigo-600"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-3xl">{tabs.find(t => t.id === activeTab)?.icon}</span>
+                  </div>
+                </div>
+                <p className="font-black text-gray-900 text-lg mb-2">Analyzing with AI...</p>
+                <p className="text-sm text-gray-500">Generating insights from policy documents</p>
+              </div>
+            ) : analyses[activeTab] ? (
+              <div className="space-y-6">
+                {/* Content with nice styling */}
+                <div className="prose prose-lg prose-indigo max-w-none
+                  prose-headings:font-black prose-headings:text-gray-900
+                  prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-8 prose-h2:pb-2 prose-h2:border-b-2 prose-h2:border-indigo-100
+                  prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-6
+                  prose-p:text-gray-700 prose-p:leading-relaxed
+                  prose-strong:text-gray-900 prose-strong:font-bold
+                  prose-ul:my-4 prose-li:my-2
+                  prose-code:bg-indigo-50 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-indigo-900 prose-code:font-semibold
+                ">
+                  <ReactMarkdown
+                    components={{
+                      h2: ({node, ...props}) => (
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 -mx-6 px-6 py-4 rounded-xl border-l-4 border-indigo-500 mb-6 mt-8">
+                          <h2 className="!mt-0 !mb-0 !border-0 flex items-center gap-3" {...props} />
+                        </div>
+                      ),
+                      ul: ({node, ...props}) => (
+                        <ul className="space-y-3 my-6" {...props} />
+                      ),
+                      li: ({node, ...props}) => (
+                        <li className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-colors" {...props}>
+                          <span className="text-indigo-600 mt-1">•</span>
+                          <span className="flex-1">{props.children}</span>
+                        </li>
+                      ),
+                      p: ({node, ...props}) => (
+                        <p className="text-gray-700 leading-relaxed" {...props} />
+                      ),
+                    }}
+                  >
+                    {analyses[activeTab]}
+                  </ReactMarkdown>
+                </div>
               </div>
             ) : (
-              <div className="prose prose-lg max-w-none">
-                <ReactMarkdown>{summary}</ReactMarkdown>
+              <div className="text-center py-24">
+                <div className="text-6xl mb-4">📄</div>
+                <p className="text-gray-400 font-medium">Click a tab to load analysis</p>
               </div>
             )}
           </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-500 font-medium">
+            Powered by Gemini AI • Built for HackViolet 2026
+          </p>
         </div>
       </div>
     </div>

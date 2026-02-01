@@ -5,7 +5,7 @@ from app.models.user_input import UserInput
 from app.prompts.prompt import build_prompt 
 
 load_dotenv()
-
+print(f"DEBUG: Key starts with: {os.getenv('GEMINI_API_KEY')[:5]}...")
 DOCUMENTS_FILE = "data/documents.txt"
 
 def load_documents():
@@ -28,8 +28,7 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 def generate_explanation(user_input: UserInput):
     docs = load_documents()
     relevant_docs = filter_documents(docs, user_input.category)
-    prompt = build_prompt(user_input.category, relevant_docs)
-    
+    prompt = build_prompt(user_input.category, relevant_docs, user_input.tab)    
     model = genai.GenerativeModel('gemini-3-flash-preview')
     response = model.generate_content(prompt)
     
