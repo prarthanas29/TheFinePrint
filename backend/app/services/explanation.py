@@ -1,4 +1,4 @@
-from google import genai
+from google import generativeai as genai
 import os
 from dotenv import load_dotenv
 from app.models.user_input import UserInput
@@ -22,13 +22,15 @@ def filter_documents(docs, category, type=""):
     return filtered
 
 # The client gets the API key from the environment variable `GEMINI_API_KEY`.
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Configure genai with API key
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def generate_explanation(user_input: UserInput):
     docs = load_documents()
     relevant_docs = filter_documents(docs, user_input.category)
     prompt = build_prompt(user_input.category, relevant_docs)
-    response = client.models.generate_content(
-        model="gemini-3-flash-preview", contents=prompt
-    )
+    
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    response = model.generate_content(prompt)
+    
     return response.text
